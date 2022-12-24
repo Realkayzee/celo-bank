@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.9;
 
-/**
+/** 
     @title celo bank contract
     @author Realkayzee
     @notice This contract is a banking system for association
@@ -36,6 +36,7 @@ contract celoBank is Ownable {
     error _notApprovedYet(string);
     error _alreadyExecuted(string);
     error _addressZero(string);
+    error _withdrawal(string);
 
 /**
     ============================
@@ -45,7 +46,7 @@ contract celoBank is Ownable {
     uint256 accountNumber = 1; // Association account number generator
     IERC20 tokenAddress;
     mapping(uint256 => AssociationDetails) public association; // track account number to associationDetails
-
+    
 
 /// @dev map creator to association created. creator can't create multiple account with the same associated address
     mapping(address => AssociationInfo) associationCreator; 
@@ -71,13 +72,14 @@ contract celoBank is Ownable {
     struct AssociationInfo {
         string infoAssName;
         uint256 associationAcctNumber;
+        uint256 infoAssociationBalance;
     }
 
-/**
+/** 
     @dev The modifier checks if an exco has confirmed before
     @param _associationAcctNumber: the association account number
     @param _exco the exco that initiated the withdrawal request to approve
-*/
+*/ 
     modifier alreadyConfirmed(uint256 _associationAcctNumber, address _exco){
         AssociationDetails storage AD = association[_associationAcctNumber];
         if(AD.confirmed[_exco][msg.sender] == true) revert _alreadyConfirmed("You already approve");
@@ -140,10 +142,10 @@ contract celoBank is Ownable {
         AD.associationName = _associationName;
         AD.excoAddr = _assExcoAddr;
         AD.excoNumber = _excoNumber;
-
+        
 
         // to track creator to association created by association name and association account number
-        associationCreator[msg.sender] = AssociationInfo(_associationName, accountNumber);
+        associationCreator[msg.sender] = AssociationInfo(_associationName, accountNumber, 0);
 
         emit _getAccountNumber(accountNumber);
 
@@ -181,8 +183,7 @@ contract celoBank is Ownable {
             amount: _amountToWithdraw
         });
 
-
-
+        
         emit _initTransaction(msg.sender, _amountToWithdraw);
     }
 
@@ -194,7 +195,7 @@ contract celoBank is Ownable {
         AD.confirmed[initiator][msg.sender] = true;
         AD.requestOrder[initiator].noOfConfirmation += 1;
     }
-
+ 
 
 /// @dev function responsible for withdrawal after approval has been confirmed
 
@@ -206,6 +207,9 @@ contract celoBank is Ownable {
             WR.executed = true;
             AD.associationBalance -= WR.amount;
             require(tokenAddress.transfer(msg.sender, WR.amount), "Trasfer Failed");
+        }
+        else{
+            revert _withdrawal("Can't withdraw");
         }
     }
 
@@ -234,8 +238,8 @@ contract celoBank is Ownable {
         AssociationDetails storage AD = association[_associationAcctNumber];
         return AD.requestOrder[initiator].amount;
     }
-
-
+    
+    
 /**
     @dev function to check the amount own by an association
     @param _associationAcctNumber: association account number
@@ -264,10 +268,31 @@ contract celoBank is Ownable {
         AssociationDetails storage AD = association[_associationAcctNumber];
         return AD.memberBalances[_addr];
     }
+
+    function getAllAssociations() public view returns(AssociationInfo[] memory assInfo) {
+        assInfo = new AssociationInfo[](accountNumber);
+
+        for(uint256 i = 1; i < accountNumber; i++) {
+            AssociationDetails storage AD = association[i];
+            string memory name = AD.associationName;
+            uint256 acctNumber = i;
+            uint256 acctBalance = AD.associationBalance;
+
+            assInfo[i-1] = AssociationInfo(name, acctNumber, acctBalance);
+        }
+    }
 }
 
 
 
 // association 1
 // ["0x5B38Da6a701c568545dCfcB03FcB875f56beddC4","0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2","0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db"]
+
+
+// association 2
+// ["0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2","0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db","0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"]
+
+
+// association 3
+// ["0xdD870fA1b7C4700F2BD7f44238821C26f7392148","0x583031D1113aD414F02576BD6afaBfb302140225","0x4B0897b0513fdC7C541B6d9D7E929C4e5364D2dB"]
 

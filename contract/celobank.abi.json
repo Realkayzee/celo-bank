@@ -350,6 +350,36 @@
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "getAllAssociations",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "string",
+                        "name": "infoAssName",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "associationAcctNumber",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "infoAssociationBalance",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct celoBank.AssociationInfo[]",
+                "name": "assInfo",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "uint216",
