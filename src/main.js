@@ -229,8 +229,32 @@ document
         await getAllAssociation()
     })
 
+// withdraw transaction function
+
+document
+    .querySelector("#withdraw-transaction")
+    .addEventListener("click", async(e) => {
+        const withdrawParams = [
+            new BigNumber(parseInt(document.getElementById("withdraw-account").value), 5).toString(),
+            new BigNumber(document.getElementById("withdraw-order").value).toString()
+        ]
+
+        notification(`⌛ Withdrawing transaction at order number "${withdrawParams[1]}"`)
 
 
+        try{
+            const result = await contract.methods
+                .withdrawal(...withdrawParams)
+                .send({from: kit.defaultAccount })
+
+                console.log(result, "result");
+                notification(`🎉 succesfully withdraw from order number "${withdrawParams[1]}"`)
+        } catch (error) {
+            notification(`⚠️ ${error}`)
+        }
+
+        await getAllAssociation()
+    })
 
 
 
