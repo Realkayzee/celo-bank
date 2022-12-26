@@ -146,6 +146,41 @@ document
     })
 
 
+// Initiate transaction function
+
+document
+    .querySelector("#initiate-transactions")
+    .addEventListener("click", async(e) => {
+        const initParams = [
+            new BigNumber(document.getElementById("initAmountWithdraw").value)
+            .shiftedBy(ERC20Decimals)
+            .toString(),
+            new BigNumber(parseInt(document.getElementById("initAcctNo").value), 5).toString(),
+        ]
+
+        notification(`⌛ Initiating "$${initParams[0]/1e18}" from account number "${(initParams[1]).padStart(5, "0")}"`)
+
+        try{
+            const result = await contract.methods
+                .initTransaction(...initParams)
+                .send({ from: kit.defaultAccount })
+
+                console.log(result, "result")
+
+            notification(`🎉 successfully initiated "$${initParams[0]/1e18}" withdrawal from account "${(initParams[1]).padStart(5, "0")}" <a href="https://explorer.celo.org/alfajores/tx/${result.blockHash}">View transaction</a>`)
+
+        } catch (error) {
+            notification(`⚠️ ${error}.`)
+        }
+
+        await getAllAssociation()
+    })
+
+
+
+
+
+
 
 window.addEventListener("load", async () => {
     notification("⌛ Loading...")
