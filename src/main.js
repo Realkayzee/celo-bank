@@ -176,6 +176,32 @@ document
         await getAllAssociation()
     })
 
+// approve transaction function
+
+document
+    .querySelector("#approve-transactions")
+    .addEventListener("click", async(e) => {
+        const approveParams = [
+            new BigNumber(document.getElementById("approve-order").value).toString(),
+            new BigNumber(parseInt(document.getElementById("approve-number").value), 5).toString(),
+        ]
+
+        notification(`⌛ approving transaction at order number "${approveParams[0]}"`)
+
+        try{
+            const result = await contract.methods
+                .approveWithdrawal(...approveParams)
+                .send({from: kit.defaultAccount })
+
+                console.log(result, "result")
+                notification(`🎉 succesfully approve transaction. <a href="https://explorer.celo.org/alfajores/tx/${result.blockHash}">View transaction</a>`)
+        } catch (error) {
+            notification(`⚠️ ${error}`)
+        }
+
+        await getAllAssociation()
+    })
+
 
 
 
