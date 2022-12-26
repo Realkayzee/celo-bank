@@ -203,6 +203,32 @@ document
     })
 
 
+// Revert approval
+
+document
+    .querySelector("#revert-transaction")
+    .addEventListener("click", async(e) => {
+        const revertParams = [
+            new BigNumber(parseInt(document.getElementById("revert-number").value), 5).toString(),
+            new BigNumber(document.getElementById("revert-order").value).toString()
+        ]
+
+        notification(`⌛ reverting transaction at order number "${revertParams[1]}"`)
+
+        try{
+            const result = await contract.methods
+                .revertApproval(...revertParams)
+                .send({from: kit.defaultAccount })
+
+                console.log(result, "result")
+                notification(`🎉 succesfully revert transaction. <a href="https://explorer.celo.org/alfajores/tx/${result.blockHash}">View transaction</a>`)
+        } catch (error) {
+            notification(`⚠️ ${error}`)
+        }
+
+        await getAllAssociation()
+    })
+
 
 
 
