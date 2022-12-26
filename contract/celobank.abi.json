@@ -160,9 +160,9 @@
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "initiator",
-                "type": "address"
+                "internalType": "uint256",
+                "name": "_orderNumber",
+                "type": "uint256"
             },
             {
                 "internalType": "uint256",
@@ -225,9 +225,9 @@
                 "type": "uint256"
             },
             {
-                "internalType": "address",
-                "name": "initiator",
-                "type": "address"
+                "internalType": "uint256",
+                "name": "_orderNumber",
+                "type": "uint256"
             }
         ],
         "name": "checkAmountRequest",
@@ -268,9 +268,9 @@
                 "type": "uint256"
             },
             {
-                "internalType": "address",
-                "name": "initiator",
-                "type": "address"
+                "internalType": "uint256",
+                "name": "_orderNumber",
+                "type": "uint256"
             }
         ],
         "name": "checkNumApproval",
@@ -393,7 +393,13 @@
             }
         ],
         "name": "initTransaction",
-        "outputs": [],
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "getOrder",
+                "type": "uint256"
+            }
+        ],
         "stateMutability": "nonpayable",
         "type": "function"
     },
@@ -425,9 +431,9 @@
                 "type": "uint256"
             },
             {
-                "internalType": "address",
-                "name": "initiator",
-                "type": "address"
+                "internalType": "uint256",
+                "name": "_orderNumber",
+                "type": "uint256"
             }
         ],
         "name": "revertApproval",
@@ -453,6 +459,11 @@
             {
                 "internalType": "uint256",
                 "name": "_associationAcctNumber",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_orderNumber",
                 "type": "uint256"
             }
         ],

@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.9;
 
-/** 
+/**
     @title celo bank contract
     @author Realkayzee
     @notice This contract is a banking system for association
@@ -46,7 +46,7 @@ contract celoBank is Ownable {
     uint256 accountNumber = 1; // Association account number generator
     IERC20 tokenAddress;
     mapping(uint256 => AssociationDetails) public association; // track account number to associationDetails
-    
+    uint256 orderNumber = 1;
 
 /// @dev map creator to association created. creator can't create multiple account with the same associated address
     mapping(address => AssociationInfo) associationCreator; 
@@ -56,9 +56,9 @@ contract celoBank is Ownable {
         string associationName;
         address[] excoAddr; // excutive addresses
         uint40 excoNumber; // The number of excutives an association register
-        mapping(address => WithdrawalRequest) requestOrder; // to track a withdrawal request by an exco
+        mapping(uint256=> WithdrawalRequest) requestOrder; // to track a withdrawal request by an exco
         mapping(address => uint256) memberBalances; // to track the amount each member deposited
-        mapping(address => mapping(address => bool)) confirmed; // to track an exco confirmation to a withdrawal request
+        mapping(uint256 => mapping(address => bool)) confirmed; // to track an exco confirmation to a withdrawal request
         uint256 associationBalance;
     }
 
@@ -75,21 +75,21 @@ contract celoBank is Ownable {
         uint256 infoAssociationBalance;
     }
 
-/** 
+/**
     @dev The modifier checks if an exco has confirmed before
     @param _associationAcctNumber: the association account number
-    @param _exco the exco that initiated the withdrawal request to approve
-*/ 
-    modifier alreadyConfirmed(uint256 _associationAcctNumber, address _exco){
+    @param _orderNumber order number of the initiated transaction
+*/
+    modifier alreadyConfirmed(uint256 _associationAcctNumber, uint256 _orderNumber){
         AssociationDetails storage AD = association[_associationAcctNumber];
-        if(AD.confirmed[_exco][msg.sender] == true) revert _alreadyConfirmed("You already approve");
+        if(AD.confirmed[_orderNumber][msg.sender] == true) revert _alreadyConfirmed("You already approve");
 
         _;
     }
 
-    modifier alreadyExecuted(uint256 _associationAcctNumber, address _exco){
+    modifier alreadyExecuted(uint256 _associationAcctNumber, uint256 _orderNumber){
         AssociationDetails storage AD = association[_associationAcctNumber];
-        if(AD.requestOrder[_exco].executed == true) revert _alreadyExecuted("Transaction already executed");
+        if(AD.requestOrder[_orderNumber].executed == true) revert _alreadyExecuted("Transaction already executed");
 
         _;
     }
@@ -142,7 +142,7 @@ contract celoBank is Ownable {
         AD.associationName = _associationName;
         AD.excoAddr = _assExcoAddr;
         AD.excoNumber = _excoNumber;
-        
+
 
         // to track creator to association created by association name and association account number
         associationCreator[msg.sender] = AssociationInfo(_associationName, accountNumber, 0);
@@ -170,43 +170,47 @@ contract celoBank is Ownable {
     }
 
 /// @dev function that initiate transaction
-    function initTransaction(uint216 _amountToWithdraw, uint256 _associationAcctNumber) public {
+    function initTransaction(uint216 _amountToWithdraw, uint256 _associationAcctNumber) public returns(uint256 getOrder) {
         AssociationDetails storage AD = association[_associationAcctNumber];
         require(onlyExco(_associationAcctNumber), "Not an exco");
         require(_amountToWithdraw > 0, "Amount must be greater than zero");
         require(_amountToWithdraw  <= AD.associationBalance, "Insufficient Fund in association balance");
 
-        AD.requestOrder[msg.sender] = WithdrawalRequest({
+        getOrder = orderNumber;
+
+        AD.requestOrder[orderNumber] = WithdrawalRequest({
             exco: msg.sender,
             noOfConfirmation: 0,
             executed: false,
             amount: _amountToWithdraw
         });
 
-        
+        orderNumber++;
+
+
         emit _initTransaction(msg.sender, _amountToWithdraw);
     }
 
 /// @dev function for approving withdrawal
 
-    function approveWithdrawal(address initiator, uint256 _associationAcctNumber) public alreadyExecuted(_associationAcctNumber, initiator) alreadyConfirmed(_associationAcctNumber, initiator){
+    function approveWithdrawal(uint256 _orderNumber, uint256 _associationAcctNumber) public alreadyExecuted(_associationAcctNumber, _orderNumber) alreadyConfirmed(_associationAcctNumber, _orderNumber){
         require(onlyExco(_associationAcctNumber), "Not an Exco");
         AssociationDetails storage AD = association[_associationAcctNumber];
-        AD.confirmed[initiator][msg.sender] = true;
-        AD.requestOrder[initiator].noOfConfirmation += 1;
+        AD.confirmed[_orderNumber][msg.sender] = true;
+        AD.requestOrder[_orderNumber].noOfConfirmation += 1;
     }
- 
+
 
 /// @dev function responsible for withdrawal after approval has been confirmed
 
-    function withdrawal(uint256 _associationAcctNumber) public alreadyExecuted(_associationAcctNumber, msg.sender){
+    function withdrawal(uint256 _associationAcctNumber, uint256 _orderNumber) public alreadyExecuted(_associationAcctNumber, _orderNumber){
         require(onlyExco(_associationAcctNumber), "Not an Exco");
         AssociationDetails storage AD = association[_associationAcctNumber];
-        WithdrawalRequest storage WR = AD.requestOrder[msg.sender];
+        WithdrawalRequest storage WR = AD.requestOrder[_orderNumber];
         if(WR.noOfConfirmation == AD.excoNumber){
             WR.executed = true;
             AD.associationBalance -= WR.amount;
-            require(tokenAddress.transfer(msg.sender, WR.amount), "Trasfer Failed");
+            require(tokenAddress.transfer(msg.sender, WR.amount), "Transfer Failed");
         }
         else{
             revert _withdrawal("Can't withdraw");
@@ -216,34 +220,34 @@ contract celoBank is Ownable {
 /**
     @dev function that handles revertion of approval
     @param _associationAcctNumber: association account number
-    @param initiator: address of the initiator
+    @param _orderNumber: order number of the initiated transaction
 */
 
-    function revertApproval(uint256 _associationAcctNumber, address initiator) public alreadyExecuted(_associationAcctNumber, initiator){
+    function revertApproval(uint256 _associationAcctNumber, uint256 _orderNumber) public alreadyExecuted(_associationAcctNumber, _orderNumber){
         require(onlyExco(_associationAcctNumber), "Not an Exco");
         AssociationDetails storage AD = association[_associationAcctNumber];
-        if(AD.confirmed[initiator][msg.sender] == false) revert _notApprovedYet("You have'nt approved yet");
-        AD.confirmed[initiator][msg.sender] = false;
-        AD.requestOrder[initiator].noOfConfirmation -= 1;
+        if(AD.confirmed[_orderNumber][msg.sender] == false) revert _notApprovedYet("You have'nt approved yet");
+        AD.confirmed[_orderNumber][msg.sender] = false;
+        AD.requestOrder[_orderNumber].noOfConfirmation -= 1;
     }
 
 /**
     @dev A function to check the amount an initiator/exco wants to withdraw
     @param _associationAcctNumber: association account number
-    @param initiator: address of the initiator
+    @param _orderNumber: order number of the intiated transaction
 */
 
 
-    function checkAmountRequest(uint256 _associationAcctNumber,address initiator) public view returns(uint256){
+    function checkAmountRequest(uint256 _associationAcctNumber,uint256 _orderNumber) public view returns(uint256){
         AssociationDetails storage AD = association[_associationAcctNumber];
-        return AD.requestOrder[initiator].amount;
+        return AD.requestOrder[_orderNumber].amount;
     }
-    
-    
+
+
 /**
     @dev function to check the amount own by an association
     @param _associationAcctNumber: association account number
-*/ 
+*/
     function AmountInAssociationVault(uint256 _associationAcctNumber) public view returns(uint256 ){
         AssociationDetails storage AD = association[_associationAcctNumber];
         return AD.associationBalance;
@@ -252,25 +256,25 @@ contract celoBank is Ownable {
 /**
     @dev function to check the total number of approval a transaction has reached
     @param _associationAcctNumber: association account number
-*/ 
+*/
 
-    function checkNumApproval(uint256 _associationAcctNumber, address initiator) public view returns (uint256) {
+    function checkNumApproval(uint256 _associationAcctNumber, uint256 _orderNumber) public view returns (uint256) {
         AssociationDetails storage AD = association[_associationAcctNumber];
-        return AD.requestOrder[initiator].noOfConfirmation;
+        return AD.requestOrder[_orderNumber].noOfConfirmation;
     }
 
 /**
     @dev functions that checks member balance in a particular association
     @param _associationAcctNumber: association account number
     @param _addr: member address to check
-*/ 
+*/
     function checkUserDeposit(uint256 _associationAcctNumber, address _addr) public view returns(uint256) {
         AssociationDetails storage AD = association[_associationAcctNumber];
         return AD.memberBalances[_addr];
     }
 
     function getAllAssociations() public view returns(AssociationInfo[] memory assInfo) {
-        assInfo = new AssociationInfo[](accountNumber);
+        assInfo = new AssociationInfo[](accountNumber - 1);
 
         for(uint256 i = 1; i < accountNumber; i++) {
             AssociationDetails storage AD = association[i];
@@ -282,17 +286,3 @@ contract celoBank is Ownable {
         }
     }
 }
-
-
-
-// association 1
-// ["0x5B38Da6a701c568545dCfcB03FcB875f56beddC4","0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2","0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db"]
-
-
-// association 2
-// ["0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2","0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db","0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"]
-
-
-// association 3
-// ["0xdD870fA1b7C4700F2BD7f44238821C26f7392148","0x583031D1113aD414F02576BD6afaBfb302140225","0x4B0897b0513fdC7C541B6d9D7E929C4e5364D2dB"]
-
