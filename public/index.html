@@ -19,17 +19,17 @@
 
     <title>Celo Bank</title>
 </head>
-<body class="bg-">
-    <div class="bg-slate-200 min-h-screen">
-        <nav>
-            <div class="bg-slate-400 w-screen drop-shadow-2xl px-32 md:px-20 py-4 flex flex-row">
+<body>
+    <div id="celo-body" class="bg-slate-200 min-h-screen">
+        <nav class="bg-slate-400">
+            <div class="drop-shadow-2xl px-32 md:px-20 py-4 flex flex-row mx-auto container mx-auto">
                 <div class="basis-1/2">
                     <p class="text-2xl font-mono font-bold text-gray-700 tracking-wide">CELOBANK</p>
                 </div>
                 <div class="basis-1/2 flex justify-end gap-4">
-                    <div class="py-1">Home</div>
-                    <div class="py-1">Executive</div>
-                    <div class="py-1">Member</div>
+                    <div id="home-link" class="py-1 celo-link cursor-pointer">Home</div>
+                    <div id="exec-link" class="py-1 celo-link cursor-pointer">Executive</div>
+                    <div id="memb-link" class="py-1 celo-link cursor-pointer">Member</div>
                     <div class="bg-slate-500 px-4 py-1 rounded-2xl text-slate-50">
                         <span id="balance">0</span>
                         <span>cUSD</span>
@@ -37,9 +37,191 @@
                 </div>
             </div>
         </nav>
-        <div class="px-32 md:px-20">
-            <div class="mt-16 w-1/4 p-2 bg-slate-500 text-center rounded-2xl text-slate-50">
-                Create Account
+        <div class="px-32 md:px-20 container mx-auto mt-16">
+            <!-- Warning notification -->
+            <div class="alert p-5 bg-amber-200 mb-5 rounded-lg">
+                <span id="notification">⌛ Loading...</span>
+            </div>
+            <!-- Home -->
+            <section id="home-section">
+                <div id="create-account" class="w-1/4 p-2 bg-slate-500 text-center rounded-2xl text-slate-50 cursor-pointer">
+                    Create Account
+                </div>
+                <table class="table-fixed w-full mt-8">
+                    <thead>
+                        <tr>
+                            <th class="text-left py-3 bg-slate-300">Number</th>
+                            <th class="text-left py-3 bg-slate-300">Name</th>
+                            <th class="text-left py-3 bg-slate-300">Amount ($)</th>
+                            <th class="text-left py-3 bg-slate-300">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        <tr>
+                            <td class="py-3">.......</td>
+                            <td class="py-3">.......</td>
+                            <td class="py-3">.......</td>
+                            <td class="py-3"><button class="px-5 bg-slate-300 rounded-2xl">Deposit</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- Exceutive Page -->
+            <section class="hidden" id="executive-section">
+                <div class="w-4/5 mx-auto rounded-md flex flex-row gap-5">
+                    <div class="base-1/4">
+                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="initiate-transaction">Initiate Transaction</button>
+                    </div>
+                    <div class="base-1/4">
+                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="approve-transaction">Approve Transaction</button>
+                    </div>
+                    <div class="base-1/4">
+                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="revert-approval">Revert Approval</button>
+                    </div>
+                    <div class="base-1/4">
+                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="withdraw">Withdraw</button>
+                    </div>
+                </div>
+
+                <!-- Initiate Transaction -->
+                <div class="excos mt-12 w-2/5 mx-auto bg-slate-300 p-4 rounded-md">
+                    <p class="font-bold font-lg mb-4">Initiate Transaction</p>
+                    <form>
+                        <label class="block my-1">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                Account No.
+                            </span>
+                            <input id="initAcctNo" type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="00009" />
+                        </label>
+                        <label class="block my-1">
+                            <span class="block text-md font-semibold text-slate-900">
+                                Amount to Withdraw
+                            </span>
+                            <input id="initAmountWithdraw" type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="$10,000" />
+                        </label>
+                        <button type="button" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4" id="initiate-transactions">
+                            Initiate Transaction
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Approve Transaction -->
+                <div class="excos mt-12 w-2/5 mx-auto bg-slate-300 p-4 rounded-md hidden">
+                    <p class="font-bold font-lg mb-4">Approve Transaction</p>
+                    <form>
+                        <label class="block my-1">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                Account Number
+                            </span>
+                            <input id="approve-number" type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="00009" />
+                        </label>
+                        <label class="block my-1">
+                            <span class="block text-md font-semibold text-slate-900">
+                                Order Number
+                            </span>
+                            <input id="approve-order" type="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="0x6d6812Fb7230218bD0134d6298d1D0Ca97A912d0" />
+                        </label>
+                        <button type="button" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4" id="approve-transactions">
+                            Approve Transaction
+                        </button>
+                    </form>
+                </div>
+                <!-- Revert Approval -->
+                <div class="excos mt-12 w-2/5 mx-auto bg-slate-300 p-4 rounded-md hidden">
+                    <p class="font-bold font-lg mb-4">Revert Approval</p>
+                    <form>
+                        <label class="block my-1">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                Account Number
+                            </span>
+                            <input id="revert-number" type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="00009" />
+                        </label>
+                        <label class="block my-1">
+                            <span class="block text-md font-semibold text-slate-900">
+                                Order Number
+                            </span>
+                            <input id="revert-order" type="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="0x6d6812Fb7230218bD0134d6298d1D0Ca97A912d0" />
+                        </label>
+                        <button type="button" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4" id="revert-transaction">
+                            Revert Approval
+                        </button>
+                    </form>
+                </div>
+                <!-- Withdrawal -->
+                <div class="excos mt-12 w-2/5 mx-auto bg-slate-300 p-4 rounded-md hidden">
+                    <p class="font-bold font-lg mb-4">Withdraw Initiated Transaction</p>
+                    <form>
+                        <label class="block my-1">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                Account No.
+                            </span>
+                            <input type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="00009" />
+                        </label>
+                        <button class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4">
+                            Withdraw
+                        </button>
+                    </form>
+                </div>
+            </section>
+            <!-- Member Page -->
+            <section class="hidden" id="member-section">
+                <div class="mt-12 w-2/5 mx-auto bg-slate-300 p-4 rounded-md">
+                    <p class="font-bold font-lg mb-4">Deposit to Association</p>
+                    <form>
+                        <label class="block my-1">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                Account No.
+                            </span>
+                            <input id="deposit-acctNumber" type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="00009" />
+                        </label>
+                        <label class="block my-1">
+                            <span class="block text-md font-semibold text-slate-900">
+                                Amount to Deposit
+                            </span>
+                            <input id="deposit-amount" type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="$10,000" />
+                        </label>
+                        <button type="button" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4" id="member-deposit">
+                            Deposit
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Modal -->
+            <div class="absolute inset-0 hidden w-full bg-gray-500/50 modal">
+                <div class="bg-slate-300 w-1/3 mx-auto mt-8 z-10 p-4 rounded-md">
+                    <div class="flex flex-row mb-8 justify-between">
+                        <div class="base-2/3">
+                            <p class="font-bold font-lg">Create Association Account</p>
+                        </div>
+                        <div class="base-1/3 cursor-pointer">
+                            <p id="close-modal">Close</p>
+                        </div>
+                    </div>
+                    <form>
+                        <label class="block my-1">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                Name
+                            </span>
+                            <input type="text" name="name" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="The achievers" />
+                        </label>
+                        <label class="block my-1">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                No. of Excos
+                            </span>
+                            <input type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="3" />
+                        </label>
+                        <label class="block">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                Excos Addresses
+                            </span>
+                            <input type="text" id="exco-addr" name="name" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="The achievers" />
+                        </label>
+                        <button class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4">
+                            Create Account
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
