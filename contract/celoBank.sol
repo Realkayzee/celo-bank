@@ -106,14 +106,15 @@ contract celoBank is Ownable {
     }
 
 
-    function onlyExco(uint256 _associationAcctNumber) internal view returns(bool check){
-        AssociationDetails storage AD = association[_associationAcctNumber];
-        for(uint i = 0; i < AD.excoAddr.length; i++){
-            if(msg.sender == AD.excoAddr[i]){
-                check = true;
-            }
-        }
+      function onlyExco(uint256 _associationAcctNumber) internal view returns(bool check) {
+    AssociationDetails storage AD = association[_associationAcctNumber];
+    for(uint i = 0; i < AD.excoAddr.length; i++) {
+      if (msg.sender == AD.excoAddr[i] && AD.memberBalances[msg.sender] > 0) {
+        return true;
+      }
     }
+    return false;
+  }
 
 /**
     @dev Function to ensure address zero is not used as executive address
@@ -134,23 +135,35 @@ contract celoBank is Ownable {
     @param _excoNumber: number of executives
     @notice this is responsible for creating association account
 */
-    function createAccount(string memory _associationName, address[] memory _assExcoAddr, uint40 _excoNumber) external {
-        require(associationCreator[msg.sender].associationAcctNumber == 0, "Account creation: can't create multiple account");
-        if(_assExcoAddr.length != _excoNumber) revert _assertExco("Specified exco number not filled");
-        noAddressZero(_assExcoAddr);
-        AssociationDetails storage AD = association[accountNumber];
-        AD.associationName = _associationName;
-        AD.excoAddr = _assExcoAddr;
-        AD.excoNumber = _excoNumber;
+    
 
 
-        // to track creator to association created by association name and association account number
-        associationCreator[msg.sender] = AssociationInfo(_associationName, accountNumber, 0);
+      function createAccount(uint256 _associationAcctNumber, string memory _associationName, address[] memory _excoAddr) public onlyOwner {
+    require(associationCreator[msg.sender].associationAcctNumber == 0, "You already have an association");
+    require(_associationAcctNumber > 0, "Invalid account number");
+    require(_associationName.length > 0, "Enter a valid name");
+    require(_excoAddr.length > 0, "Enter at least one exco member");
 
-        emit _getAccountNumber(accountNumber);
+    AssociationDetails memory AD = AssociationDetails({
+      associationName: _associationName,
+      excoAddr: _excoAddr,
+      excoNumber: _excoAddr.length,
+      memberBalances: mapping(address => uint256)(),
+      requestOrder: mapping(uint256 => WithdrawalRequest)(),
+      confirmed: mapping(uint256 => mapping(address => bool))(),
+      associationBalance: 0
+    });
 
-        accountNumber++;
-    }
+    association[_associationAcctNumber] = AD;
+
+    AssociationInfo memory AI = AssociationInfo({
+      infoAssName: _associationName,
+      associationAcctNumber: _associationAcctNumber,
+      infoAssociationBalance: 0
+    });
+
+    associationCreator[msg.sender] = AI;
+  }
 
 
 
@@ -193,29 +206,29 @@ contract celoBank is Ownable {
 
 /// @dev function for approving withdrawal
 
-    function approveWithdrawal(uint256 _orderNumber, uint256 _associationAcctNumber) public alreadyExecuted(_associationAcctNumber, _orderNumber) alreadyConfirmed(_associationAcctNumber, _orderNumber){
-        require(onlyExco(_associationAcctNumber), "Not an Exco");
-        AssociationDetails storage AD = association[_associationAcctNumber];
-        AD.confirmed[_orderNumber][msg.sender] = true;
-        AD.requestOrder[_orderNumber].noOfConfirmation += 1;
+    function confirmWithdrawal(uint256 _associationAcctNumber, uint256 _orderNumber) public {
+    require(onlyExco(_associationAcctNumber), _assertExco("You are not an exco"));
+    AssociationDetails storage AD = association[_associationAcctNumber];
+    require(AD.requestOrder[_orderNumber].amount > 0, _noZeroAmount("Invalid amount"));
+    require(AD.requestOrder[_orderNumber].exco != msg.sender, "You initiated this request");
     }
 
+  function requestWithdrawal(uint256 _associationAcctNumber, uint256 _orderNumber, uint216 _amount) public {
+    require(_amount > 0, _noZeroAmount("Enter valid amount"));
+    require(onlyExco(_associationAcctNumber), _assertExco("You are not an exco"));
+    require(_orderNumber > 0, "Enter a valid order number");
+    AssociationDetails storage AD = association[_associationAcctNumber];
+    require(AD.associationBalance >= _amount, "Insufficient funds");
+    WithdrawalRequest memory WR = WithdrawalRequest({
+      exco: msg.sender,
+      noOfConfirmation: 0,
+      executed: false,
+      amount: _amount
+    });
 
-/// @dev function responsible for withdrawal after approval has been confirmed
+    AD.requestOrder[_orderNumber] = WR;
+  }
 
-    function withdrawal(uint256 _associationAcctNumber, uint256 _orderNumber) public alreadyExecuted(_associationAcctNumber, _orderNumber){
-        require(onlyExco(_associationAcctNumber), "Not an Exco");
-        AssociationDetails storage AD = association[_associationAcctNumber];
-        WithdrawalRequest storage WR = AD.requestOrder[_orderNumber];
-        if(WR.noOfConfirmation == AD.excoNumber){
-            WR.executed = true;
-            AD.associationBalance -= WR.amount;
-            require(tokenAddress.transfer(msg.sender, WR.amount), "Transfer Failed");
-        }
-        else{
-            revert _withdrawal("Can't withdraw");
-        }
-    }
 
 /**
     @dev function that handles revertion of approval
