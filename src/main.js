@@ -7,7 +7,7 @@ import { bufferToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrappe
 
 
 const ERC20Decimals = 18;
-const bankContractAddress = "0xB9a8Daa75eB258c405fA1D3c7F44927e1D700E17"
+const bankContractAddress = "0xb8dA390a60aD909773B8416a86045deBc8F31853"
 const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"
 
 let kit;
@@ -72,7 +72,7 @@ function notificationOff() {
 const getAllAssociation = async () => {
     allAssociation = await contract.methods.getAllAssociations().call();
     allAssociation.map((item) => {
-        document.getElementById("tbody").innerHTML = associationTemplate(item)
+        document.getElementById("tbody").innerHTML += associationTemplate(item)
     })
 console.log("all association", allAssociation);
 }
@@ -123,7 +123,7 @@ document
             return;
         }
 
-        notification(`⌛ Adding "$${depositParams[1]/1e18}"...`)
+        notification(`⌛ Depositing "$${depositParams[1]/1e18}"...`)
 
         try{
             const result = await contract.methods
@@ -248,12 +248,66 @@ document
                 .send({from: kit.defaultAccount })
 
                 console.log(result, "result");
-                notification(`🎉 succesfully withdraw from order number "${withdrawParams[1]}"`)
+                notification(`🎉 succesfully withdraw from order number "${withdrawParams[1]}" <a href="https://explorer.celo.org/alfajores/tx/${result.blockHash}">View transaction</a>`)
         } catch (error) {
             notification(`⚠️ ${error}`)
         }
 
         await getAllAssociation()
+    })
+
+    let Excoaddress = [];
+
+// add address function
+document
+    .querySelector("#add-address")
+    .addEventListener("click", () => {
+        Excoaddress.push(document.getElementById("exco-addr").value)
+        document.getElementById("exco-addr").value = ""
+
+
+        console.log(Excoaddress, "see exco addresses")
+        let result = [];
+
+        for(let i=0; i < Excoaddress.length; i++) {
+            result.push(Excoaddress[i].slice(0,6));
+        }
+        console.log(result, "result")
+        document.getElementById("display-address").innerHTML = `
+        <p class="flex-initial bg-slate-400 p-2">${result}</p>
+    `
+    })
+
+// create account function
+document
+    .querySelector("#create-accounts")
+    .addEventListener("click", async(e) => {
+        const createParams = [
+            document.getElementById("create-name").value,
+            Excoaddress,
+            new BigNumber(document.getElementById("exco-no").value).toString()
+        ]
+
+        console.log(createParams, "create parameter");
+
+
+        notification(`⌛ Creating association account`)
+
+        try{
+            const result = await contract.methods
+                .createAccount(...createParams)
+                .send({from: kit.defaultAccount })
+
+            console.log(result, "result");
+            notification(`🎉 succesfully created an association account. <a href="https://explorer.celo.org/alfajores/tx/${result.blockHash}">View transaction</a>`)
+        } catch (error) {
+            notification(`⚠️ ${error}`)
+        }
+
+        await getAllAssociation()
+        document.querySelector(".modal").style.display = "none";
+
+        Excoaddress = []
     })
 
 
@@ -321,15 +375,10 @@ document.getElementById("withdraw").addEventListener("click", () => {
 // create account modal
 document.getElementById("create-account").addEventListener("click", () => {
     document.querySelector(".modal").style.display = "block";
-    document.getElementById("modal-wrapper").style.backgroundColor = "#000000"
 })
 document.getElementById("close-modal").addEventListener("click", () => {
     document.querySelector(".modal").style.display = "none";
     document.getElementById("celo-body").style.backgroundColor = ""
-})
-
-document.querySelector(".modal").addEventListener("click", () => {
-    document.querySelector(".modal").style.display = "none";
 })
 
 
