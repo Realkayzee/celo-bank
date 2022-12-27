@@ -1,3 +1,5 @@
+# Celo Bank
+
 # Install
 
 ```
