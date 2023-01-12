@@ -9,7 +9,7 @@ Celo bank is an open joint account system for various association, association c
 
 
 #Demo
-
+https://celo-bank.vercel.app/
 
 # Install
 
@@ -19,7 +19,7 @@ npm install
 
 ```
 
-or 
+or
 
 ```
 
