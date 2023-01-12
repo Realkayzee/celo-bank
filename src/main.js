@@ -70,9 +70,10 @@ function notificationOff() {
 
 
 const getAllAssociation = async () => {
+    document.getElementById("tbody").innerHTML = ""
     allAssociation = await contract.methods.getAllAssociations().call();
-    allAssociation.map((item) => {
-        document.getElementById("tbody").innerHTML += associationTemplate(item)
+    allAssociation.forEach((item) => {
+        document.getElementById("tbody").innerHTML += associationTemplate(item);
     })
 console.log("all association", allAssociation);
 }
@@ -81,13 +82,14 @@ console.log("all association", allAssociation);
 function associationTemplate(_association) {
     return `
         <tr>
-            <td class="py-3">${(_association[1]).padStart(5, "0")}</td>
+            <td class="py-3 pl-5">${(_association[1]).padStart(5, "0")}</td>
             <td class="py-3">${_association[0]}</td>
-            <td class="py-3">${(_association[2])/ 1e18}</td>
-            <td class="py-3"><button class="px-5 bg-slate-300 rounded-2xl" id="deposit">Deposit</button></td>
+            <td class="py-3"><button class="px-5 bg-slate-300 rounded-2xl">Deposit</button></td>
         </tr>
     `
 }
+
+
 
 // deposit function
 
@@ -285,7 +287,7 @@ document
         const createParams = [
             document.getElementById("create-name").value,
             Excoaddress,
-            new BigNumber(document.getElementById("exco-no").value).toString()
+            Excoaddress.length
         ]
 
         console.log(createParams, "create parameter");
