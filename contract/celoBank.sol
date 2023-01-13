@@ -60,6 +60,8 @@ contract celoBank is Ownable {
         mapping(address => uint256) memberBalances; // to track the amount each member deposited
         mapping(uint256 => mapping(address => bool)) confirmed; // to track an exco confirmation to a withdrawal request
         uint256 associationBalance;
+        string associationPassword;
+        address associationCreator;
     }
 
     struct WithdrawalRequest {
@@ -72,7 +74,7 @@ contract celoBank is Ownable {
     struct AssociationInfo {
         string infoAssName;
         uint256 associationAcctNumber;
-        uint256 infoAssociationBalance;
+        address infoAssCreator;
     }
 
 /**
@@ -133,35 +135,44 @@ contract celoBank is Ownable {
     @param _assExcoAddr: association executive addresses - array of addresses
     @param _excoNumber: number of executives
     @notice this is responsible for creating association account
+        * The account number is automatically generated
+        * A User can't create multiple account
 */
-    function createAccount(string memory _associationName, address[] memory _assExcoAddr, uint40 _excoNumber) external {
-        require(associationCreator[msg.sender].associationAcctNumber == 0, "Account creation: can't create multiple account");
-        if(_assExcoAddr.length != _excoNumber) revert _assertExco("Specified exco number not filled");
-        noAddressZero(_assExcoAddr);
-        AssociationDetails storage AD = association[accountNumber];
+    function createAccount(string memory _associationName, address[] memory _assExcoAddr, uint40 _excoNumber, string memory _associationPassword) external returns(uint _getAcctNo) {
+        address acctCreator = msg.sender; // cache to save gas
+        require(associationCreator[acctCreator].associationAcctNumber == 0, "CELO-BANK: Can't create multiple account, already created association");
+        if(_assExcoAddr.length != _excoNumber) revert _assertExco("Specified exco number not filled"); // ensure the required number of exco registered
+        noAddressZero(_assExcoAddr);// ensure address zero is not added to exco address
+        _getAcctNo = accountNumber;
+        AssociationDetails storage AD = association[_getAcctNo];
         AD.associationName = _associationName;
         AD.excoAddr = _assExcoAddr;
         AD.excoNumber = _excoNumber;
+        AD.associationPassword = _associationPassword; // password for member of association to access account
+        AD.associationCreator = acctCreator;
 
 
         // to track creator to association created by association name and association account number
-        associationCreator[msg.sender] = AssociationInfo(_associationName, accountNumber, 0);
+        associationCreator[acctCreator] = AssociationInfo(_associationName, _getAcctNo, 0);
 
         emit _getAccountNumber(accountNumber);
 
         accountNumber++;
     }
 
+    /// @dev function to change association account number
+    /// @notice this can only be changed by the association account creator
 
+    function changeAssociationPassword(uint256 _associationAcctNumber, string memory newPassword) external {
+        require(associationCreator[msg.sender].associationAcctNumber == _associationAcctNumber, "You are not the creator of this account");
+        association[_associationAcctNumber].associationPassword = newPassword;
 
-/// @dev Function to retrieve association account number
-    function checkAssociationAccountNo(address _creatorAddr) public view returns(uint256){
-        return associationCreator[_creatorAddr].associationAcctNumber;
     }
 
 
 /// @dev function for users deposit to association bank
     function deposit(uint256 _associationAcctNumber, uint256 payFee) external payable {
+        require(_associationAcctNumber < accountNumber && _associationAcctNumber != 0, "Invalid Account Number")
         if(payFee == 0) revert _noZeroAmount("Deposit: zero deposit not allowed");
         AssociationDetails storage AD = association[_associationAcctNumber];
         require(tokenAddress.transferFrom(msg.sender, address(this), payFee), "Transfer Failed");
@@ -170,6 +181,7 @@ contract celoBank is Ownable {
     }
 
 /// @dev function that initiate transaction
+/// @notice only excos can call on this function
     function initTransaction(uint216 _amountToWithdraw, uint256 _associationAcctNumber) public returns(uint256 getOrder) {
         AssociationDetails storage AD = association[_associationAcctNumber];
         require(onlyExco(_associationAcctNumber), "Not an exco");
@@ -178,7 +190,7 @@ contract celoBank is Ownable {
 
         getOrder = orderNumber;
 
-        AD.requestOrder[orderNumber] = WithdrawalRequest({
+        AD.requestOrder[getOrder] = WithdrawalRequest({
             exco: msg.sender,
             noOfConfirmation: 0,
             executed: false,
@@ -248,19 +260,22 @@ contract celoBank is Ownable {
     @dev function to check the amount own by an association
     @param _associationAcctNumber: association account number
 */
-    function AmountInAssociationVault(uint256 _associationAcctNumber) public view returns(uint256 ){
+    function AmountInAssociationVault(uint256 _associationAcctNumber, string memory password) public view returns(uint256 ){
         AssociationDetails storage AD = association[_associationAcctNumber];
+        require(AD.associationPassword == password, "Incorrect Password);
         return AD.associationBalance;
     }
 
 /**
     @dev function to check the total number of approval a transaction has reached
+        - Checks if order has been executed
     @param _associationAcctNumber: association account number
 */
 
-    function checkNumApproval(uint256 _associationAcctNumber, uint256 _orderNumber) public view returns (uint256) {
+    function ApprovalStatus(uint256 _associationAcctNumber, uint256 _orderNumber) public view returns (uint256 approvalNo, bool executed) {
         AssociationDetails storage AD = association[_associationAcctNumber];
-        return AD.requestOrder[_orderNumber].noOfConfirmation;
+        approvalNo = AD.requestOrder[_orderNumber].noOfConfirmation;
+        executed = AD.requestOrder[_orderNumber].executed;
     }
 
 /**
@@ -280,9 +295,9 @@ contract celoBank is Ownable {
             AssociationDetails storage AD = association[i];
             string memory name = AD.associationName;
             uint256 acctNumber = i;
-            uint256 acctBalance = AD.associationBalance;
+            address assCreator = AD.associationCreator;
 
-            assInfo[i-1] = AssociationInfo(name, acctNumber, acctBalance);
+            assInfo[i-1] = AssociationInfo(name, acctNumber, assCreator);
         }
     }
 }
