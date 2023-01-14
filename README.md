@@ -11,6 +11,33 @@ Celo bank is an open joint account system for various association, association c
 #Demo
 https://celo-bank.vercel.app/
 
+
+# Detailed Explanation of Celo Bank Usage and Interaction
+
+## Homepage
+
+The homepage contains the create account button where anybody can come to create an association,
+
+### For create association account modal
+* A user cannot create multiple account
+* Each account creation is backed  with a password for users of the association to check the association balance (this helps restrict outsider from seeing association balance)
+* The create account association have input for adding more than one exco address
+* To register more than one exco while creating association account, user will click on add address button to add address one after the other
+* User can then create account after inputting all the neccessary details
+
+### Account list (Table)
+The created account will be added to the list of available association account created on the homepage.
+
+The list contains:
+* The association account number which is automatically generated on account creation (This is what makes an association unique)
+* The association name base on user's input
+* The association creator - The person that created the account
+* Action - Deposit button to deposit into an account, users will specify the account they wish to deposit into
+
+
+
+
+
 # Install
 
 ```
