@@ -116,6 +116,83 @@
                 "type": "uint256"
             }
         ],
+        "name": "_amountRequest",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "name": "_approvalStatus",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "_approveWithdrawal",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "_associationBalance",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "name": "_changePassword",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
         "name": "_getAccountNumber",
         "type": "event"
     },
@@ -133,6 +210,12 @@
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             }
         ],
         "name": "_initTransaction",
@@ -144,6 +227,11 @@
                 "internalType": "uint256",
                 "name": "_associationAcctNumber",
                 "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "password",
+                "type": "string"
             }
         ],
         "name": "AmountInAssociationVault",
@@ -152,6 +240,35 @@
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_associationAcctNumber",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_orderNumber",
+                "type": "uint256"
+            }
+        ],
+        "name": "ApprovalStatus",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "approvalNo",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "executed",
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
@@ -199,9 +316,37 @@
                 "internalType": "uint256",
                 "name": "associationBalance",
                 "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "associationPassword",
+                "type": "string"
+            },
+            {
+                "internalType": "address",
+                "name": "associationCreator",
+                "type": "address"
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_associationAcctNumber",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "newPassword",
+                "type": "string"
+            }
+        ],
+        "name": "changeAssociationPassword",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -231,49 +376,6 @@
             }
         ],
         "name": "checkAmountRequest",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_creatorAddr",
-                "type": "address"
-            }
-        ],
-        "name": "checkAssociationAccountNo",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_associationAcctNumber",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_orderNumber",
-                "type": "uint256"
-            }
-        ],
-        "name": "checkNumApproval",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -324,10 +426,21 @@
                 "internalType": "uint40",
                 "name": "_excoNumber",
                 "type": "uint40"
+            },
+            {
+                "internalType": "string",
+                "name": "_associationPassword",
+                "type": "string"
             }
         ],
         "name": "createAccount",
-        "outputs": [],
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "_getAcctNo",
+                "type": "uint256"
+            }
+        ],
         "stateMutability": "nonpayable",
         "type": "function"
     },
@@ -366,9 +479,9 @@
                         "type": "uint256"
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "infoAssociationBalance",
-                        "type": "uint256"
+                        "internalType": "address",
+                        "name": "infoAssCreator",
+                        "type": "address"
                     }
                 ],
                 "internalType": "struct celoBank.AssociationInfo[]",
