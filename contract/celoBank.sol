@@ -153,7 +153,7 @@ contract celoBank is Ownable {
 
 
         // to track creator to association created by association name and association account number
-        associationCreator[acctCreator] = AssociationInfo(_associationName, _getAcctNo, 0);
+        associationCreator[acctCreator] = AssociationInfo(_associationName, _getAcctNo, acctCreator);
 
         emit _getAccountNumber(accountNumber);
 
@@ -172,7 +172,7 @@ contract celoBank is Ownable {
 
 /// @dev function for users deposit to association bank
     function deposit(uint256 _associationAcctNumber, uint256 payFee) external payable {
-        require(_associationAcctNumber < accountNumber && _associationAcctNumber != 0, "Invalid Account Number")
+        require(_associationAcctNumber < accountNumber && _associationAcctNumber != 0, "Invalid Account Number");
         if(payFee == 0) revert _noZeroAmount("Deposit: zero deposit not allowed");
         AssociationDetails storage AD = association[_associationAcctNumber];
         require(tokenAddress.transferFrom(msg.sender, address(this), payFee), "Transfer Failed");
@@ -262,7 +262,7 @@ contract celoBank is Ownable {
 */
     function AmountInAssociationVault(uint256 _associationAcctNumber, string memory password) public view returns(uint256 ){
         AssociationDetails storage AD = association[_associationAcctNumber];
-        require(AD.associationPassword == password, "Incorrect Password);
+        require(keccak256(abi.encodePacked(AD.associationPassword)) == keccak256(abi.encodePacked(password)), "Incorrect Password");
         return AD.associationBalance;
     }
 
