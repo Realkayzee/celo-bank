@@ -7,7 +7,7 @@ import { bufferToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrappe
 
 
 const ERC20Decimals = 18;
-const bankContractAddress = "0xb8dA390a60aD909773B8416a86045deBc8F31853"
+const bankContractAddress = "0x9E6A55B8fA394923fcD060F1a48f448A1Beeaba9"
 const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"
 
 let kit;
