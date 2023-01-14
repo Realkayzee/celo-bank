@@ -160,7 +160,7 @@ document
             new BigNumber(parseInt(document.getElementById("initAcctNo").value), 5).toString(),
         ]
 
-        notification(`⌛ Initiating "$${initParams[0]/1e18}" from account number "${(initParams[1]).padStart(5, "0")}"`)
+        notification(`⌛ Initiating "$${initParams[0]/1e18}" from account number "${document.getElementById("initAcctNo").value}"`)
 
         try{
             const result = await contract.methods
