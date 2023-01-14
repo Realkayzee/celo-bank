@@ -48,6 +48,9 @@ const connectCeloWallet = async () => {
     }
 }
 
+function calculatePrice(amount) {
+	return amount.shiftedBy(-ERC20Decimals).toFixed(2);
+}
 
 
 const getBalance = async () => {
@@ -84,10 +87,12 @@ function associationTemplate(_association) {
         <tr>
             <td class="py-3 pl-5">${(_association[1]).padStart(5, "0")}</td>
             <td class="py-3">${_association[0]}</td>
+            <td class="py-3">${(_association[2]).slice(0,10)}......</td>
             <td class="py-3"><button class="px-5 bg-slate-300 rounded-2xl">Deposit</button></td>
         </tr>
     `
 }
+
 
 
 
@@ -287,7 +292,8 @@ document
         const createParams = [
             document.getElementById("create-name").value,
             Excoaddress,
-            Excoaddress.length
+            Excoaddress.length,
+            document.getElementById("create-password").value
         ]
 
         console.log(createParams, "create parameter");
@@ -321,15 +327,6 @@ window.addEventListener("load", async () => {
     await getAllAssociation();
     notificationOff()
 })
-
-
-
-function calculatePrice(amount) {
-	return amount.shiftedBy(-ERC20Decimals).toFixed(2);
-}
-
-
-
 
 
 
