@@ -21,13 +21,8 @@ contract celoBank is Ownable {
     -----------Events-----------
     ============================
 */
-    event _initTransaction(address, uint256, uint256);
-    event _getAccountNumber(uint256, address);
-    event _changePassword(string);
-    event _approveWithdrawal(uint256);
-    event _amountRequest(uint256);
-    event _associationBalance(uint256);
-    event _approvalStatus(uint256, bool);
+    event _initTransaction(address, uint256);
+    event _getAccountNumber(uint256);
 
 /**
     ============================
@@ -160,7 +155,7 @@ contract celoBank is Ownable {
         // to track creator to association created by association name and association account number
         associationCreator[acctCreator] = AssociationInfo(_associationName, _getAcctNo, acctCreator);
 
-        emit _getAccountNumber(_getAcctNo, acctCreator);
+        emit _getAccountNumber(accountNumber);
 
         accountNumber++;
     }
@@ -172,7 +167,6 @@ contract celoBank is Ownable {
         require(associationCreator[msg.sender].associationAcctNumber == _associationAcctNumber, "You are not the creator of this account");
         association[_associationAcctNumber].associationPassword = newPassword;
 
-        emit _changePassword(newPassword);
     }
 
 
@@ -203,9 +197,10 @@ contract celoBank is Ownable {
             amount: _amountToWithdraw
         });
 
-        emit _initTransaction(msg.sender, _amountToWithdraw, getOrder);
-
         orderNumber++;
+
+
+        emit _initTransaction(msg.sender, _amountToWithdraw);
     }
 
 /// @dev function for approving withdrawal
@@ -215,8 +210,6 @@ contract celoBank is Ownable {
         AssociationDetails storage AD = association[_associationAcctNumber];
         AD.confirmed[_orderNumber][msg.sender] = true;
         AD.requestOrder[_orderNumber].noOfConfirmation += 1;
-
-        emit _approveWithdrawal(AD.requestOrder[_orderNumber].noOfConfirmation);
     }
 
 
@@ -248,8 +241,6 @@ contract celoBank is Ownable {
         if(AD.confirmed[_orderNumber][msg.sender] == false) revert _notApprovedYet("You have'nt approved yet");
         AD.confirmed[_orderNumber][msg.sender] = false;
         AD.requestOrder[_orderNumber].noOfConfirmation -= 1;
-
-        emit _approveWithdrawal(AD.requestOrder[_orderNumber].noOfConfirmation);
     }
 
 /**
@@ -257,10 +248,10 @@ contract celoBank is Ownable {
     @param _associationAcctNumber: association account number
     @param _orderNumber: order number of the intiated transaction
 */
+
+
     function checkAmountRequest(uint256 _associationAcctNumber,uint256 _orderNumber) public view returns(uint256){
         AssociationDetails storage AD = association[_associationAcctNumber];
-
-
         return AD.requestOrder[_orderNumber].amount;
     }
 
@@ -269,11 +260,9 @@ contract celoBank is Ownable {
     @dev function to check the amount own by an association
     @param _associationAcctNumber: association account number
 */
-    function AmountInAssociationVault(uint256 _associationAcctNumber, string memory password) public view returns(uint256){
+    function AmountInAssociationVault(uint256 _associationAcctNumber, string memory password) public view returns(uint256 ){
         AssociationDetails storage AD = association[_associationAcctNumber];
         require(keccak256(abi.encodePacked(AD.associationPassword)) == keccak256(abi.encodePacked(password)), "Incorrect Password");
-
-
         return AD.associationBalance;
     }
 
