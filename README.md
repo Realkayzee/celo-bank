@@ -34,6 +34,13 @@ The list contains:
 * The association creator - The person that created the account
 * Action - Deposit button to deposit into an account, users will specify the account they wish to deposit into
 
+### Deposit
+
+The deposit form takes in the account number and amount user wants to deposit.
+* Anybody can deposit cUSD into the association account
+* Depositing into an invalid account number won't go through
+* The amount will be deposited into user specified account number, so ensure the deposit account number is correct.
+
 
 
 
