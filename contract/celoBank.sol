@@ -204,6 +204,9 @@ contract celoBank is Ownable {
         emit _initTransaction(getOrder);
 
         orderNumber++;
+
+        approveWithdrawal(getOrder, _associationAcctNumber);
+
     }
 
 /// @dev function for approving withdrawal
@@ -228,6 +231,7 @@ contract celoBank is Ownable {
         require(onlyExco(_associationAcctNumber), "Not an Exco");
         AssociationDetails storage AD = association[_associationAcctNumber];
         WithdrawalRequest storage WR = AD.requestOrder[_orderNumber];
+        require(WR.exco == msg.sender, "Only initiator can withdraw");
         if(WR.noOfConfirmation == AD.excoNumber){
             WR.executed = true;
             AD.associationBalance -= WR.amount;

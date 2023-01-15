@@ -7,7 +7,7 @@ import { bufferToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrappe
 
 
 const ERC20Decimals = 18;
-const bankContractAddress = "0x80f5428BE88139bC3370d5a918D760599D9C1AeD"
+const bankContractAddress = "0xC3FF020D904Fc6cd8C3860A1FEe011630D2B4825"
 const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"
 
 let kit;
@@ -91,6 +91,7 @@ function associationTemplate(_association) {
         </tr>
     `
 }
+
 
 
 
@@ -194,13 +195,14 @@ document
         notification(`⌛ approving withdrawal for account "${(approveParams[1]).padStart(5, "0")}" at order number "${approveParams[0]}"`)
 
         try{
+            const excoNumber = await contract.methods.getExcoNumber(approveParams[1]).call();
             const result = await contract.methods
                 .approveWithdrawal(...approveParams)
                 .send({from: kit.defaultAccount })
 
                 const {events: getEvents} = result;
                 const event = getEvents._approveWithdrawal.raw.data
-                notification(`🎉 succesfully approve withdrawal. Total number of confirmation from excos: <b>${hexToDecimal(event)}</b> <br/> <a target="_blank" class="underline underline-offset-2" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
+                notification(`🎉 succesfully approve withdrawal. Total number of confirmation from excos: <b>${hexToDecimal(event)} of ${excoNumber}</b> <br/> <a target="_blank" class="underline underline-offset-2" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
         } catch (error) {
             notification(`⚠️ ${error}`)
         }
@@ -222,13 +224,14 @@ document
         notification(`⌛ reverting approval for account "${(revertParams[0]).padStart(5, "0")}" at order number "${revertParams[1]}"`)
 
         try{
+            const excoNumber = await contract.methods.getExcoNumber(revertParams[0]).call();
             const result = await contract.methods
                 .revertApproval(...revertParams)
                 .send({from: kit.defaultAccount })
 
                 const {events: getEvents} = result;
                 const event = getEvents._approveWithdrawal.raw.data
-                notification(`🎉 succesfully revert approval. Total number of confirmation from excos: <b>${hexToDecimal(event)}</b> <br/> <a target="_blank" class="underline underline-offset-2" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
+                notification(`🎉 succesfully revert approval. Total number of confirmation from excos: <b>${hexToDecimal(event)} of ${excoNumber}</b> <br/> <a target="_blank" class="underline underline-offset-2" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
         } catch (error) {
             notification(`⚠️ ${error}`)
         }
