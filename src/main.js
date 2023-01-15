@@ -7,7 +7,7 @@ import { bufferToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrappe
 
 
 const ERC20Decimals = 18;
-const bankContractAddress = "0x9E6A55B8fA394923fcD060F1a48f448A1Beeaba9"
+const bankContractAddress = "0x80f5428BE88139bC3370d5a918D760599D9C1AeD"
 const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"
 
 let kit;
@@ -36,7 +36,6 @@ const connectCeloWallet = async () => {
             const accounts = await kit.web3.eth.getAccounts()
             kit.defaultAccount = accounts[0]
             userAccount = kit.defaultAccount
-            console.log(userAccount, "user account")
 
 
             contract = new kit.web3.eth.Contract(CELOBANK, bankContractAddress);
@@ -52,11 +51,12 @@ function calculatePrice(amount) {
 	return amount.shiftedBy(-ERC20Decimals).toFixed(2);
 }
 
+const hexToDecimal = hex => parseInt(hex, 16)
+
 
 const getBalance = async () => {
     const totalBalance = await kit.getTotalBalance(kit.defaultAccount);
     const cUSDBalance = calculatePrice(totalBalance.cUSD);
-    console.log(cUSDBalance, "see")
     document.querySelector("#balance").textContent = cUSDBalance;
 }
 
@@ -78,7 +78,6 @@ const getAllAssociation = async () => {
     allAssociation.forEach((item) => {
         document.getElementById("tbody").innerHTML += associationTemplate(item);
     })
-console.log("all association", allAssociation);
 }
 
 
@@ -118,7 +117,6 @@ document
         ]
         notification(`⌛ Please approve "$${depositParams[1]/1e18}" to be deposited into account "${(depositParams[0]).padStart(5, "0")}". waiting...`)
 
-        console.log(depositParams, "get deposit parameters")
 
         try{
             await approve(depositParams[1])
@@ -137,8 +135,7 @@ document
                 .deposit(...depositParams)
                 .send({from: kit.defaultAccount })
 
-                console.log(result, "result")
-        notification(`🎉 You successfully deposited "$${depositParams[1]/1e18}" <a target="_blank" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
+        notification(`🎉 You successfully deposited "$${depositParams[1]/1e18}" <a class="underline underline-offset-2" target="_blank" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
 
         } catch (error) {
             notification(`⚠️ ${error}.`)
@@ -162,19 +159,20 @@ document
             new BigNumber(document.getElementById("initAmountWithdraw").value)
             .shiftedBy(ERC20Decimals)
             .toString(),
-            new BigNumber(parseInt(document.getElementById("initAcctNo").value), 5).toString(),
+            new BigNumber(parseInt(document.getElementById("initAcctNo").value, 10)).toString(),
         ]
 
-        notification(`⌛ Initiating "$${initParams[0]/1e18}" from account number "${document.getElementById("initAcctNo").value}"`)
+        notification(`⌛ Initiating "$${initParams[0]/1e18}" from account number "${(initParams[1]).padStart(5, "0")}".....`)
 
         try{
             const result = await contract.methods
                 .initTransaction(...initParams)
                 .send({ from: kit.defaultAccount })
 
-                console.log(result, "result")
+                const {events: getEvents} = result;
+                const event = getEvents._initTransaction.raw.data
 
-            notification(`🎉 successfully initiated "$${initParams[0]/1e18}" withdrawal from account "${(initParams[1]).padStart(5, "0")}" <a href="https://explorer.celo.org/alfajores/tx/${result.blockHash}">View transaction</a>`)
+            notification(`🎉 successfully initiated "$${initParams[0]/1e18}" withdrawal from account "${(initParams[1]).padStart(5, "0")}" at order number: <b>${hexToDecimal(event)}<b/> <br/> <a target="_blank" class="underline underline-offset-2" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
 
         } catch (error) {
             notification(`⚠️ ${error}.`)
@@ -190,18 +188,19 @@ document
     .addEventListener("click", async(e) => {
         const approveParams = [
             new BigNumber(document.getElementById("approve-order").value).toString(),
-            new BigNumber(parseInt(document.getElementById("approve-number").value), 5).toString(),
+            new BigNumber(parseInt(document.getElementById("approve-number").value, 10)).toString(),
         ]
 
-        notification(`⌛ approving transaction at order number "${approveParams[0]}"`)
+        notification(`⌛ approving withdrawal for account "${(approveParams[1]).padStart(5, "0")}" at order number "${approveParams[0]}"`)
 
         try{
             const result = await contract.methods
                 .approveWithdrawal(...approveParams)
                 .send({from: kit.defaultAccount })
 
-                console.log(result, "result")
-                notification(`🎉 succesfully approve transaction. <a href="https://explorer.celo.org/alfajores/tx/${result.blockHash}">View transaction</a>`)
+                const {events: getEvents} = result;
+                const event = getEvents._approveWithdrawal.raw.data
+                notification(`🎉 succesfully approve withdrawal. Total number of confirmation from excos: <b>${hexToDecimal(event)}</b> <br/> <a target="_blank" class="underline underline-offset-2" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
         } catch (error) {
             notification(`⚠️ ${error}`)
         }
@@ -216,19 +215,20 @@ document
     .querySelector("#revert-transaction")
     .addEventListener("click", async(e) => {
         const revertParams = [
-            new BigNumber(parseInt(document.getElementById("revert-number").value), 5).toString(),
+            new BigNumber(parseInt(document.getElementById("revert-number").value, 10)).toString(),
             new BigNumber(document.getElementById("revert-order").value).toString()
         ]
 
-        notification(`⌛ reverting transaction at order number "${revertParams[1]}"`)
+        notification(`⌛ reverting approval for account "${(revertParams[0]).padStart(5, "0")}" at order number "${revertParams[1]}"`)
 
         try{
             const result = await contract.methods
                 .revertApproval(...revertParams)
                 .send({from: kit.defaultAccount })
 
-                console.log(result, "result")
-                notification(`🎉 succesfully revert transaction. <a href="https://explorer.celo.org/alfajores/tx/${result.blockHash}">View transaction</a>`)
+                const {events: getEvents} = result;
+                const event = getEvents._approveWithdrawal.raw.data
+                notification(`🎉 succesfully revert approval. Total number of confirmation from excos: <b>${hexToDecimal(event)}</b> <br/> <a target="_blank" class="underline underline-offset-2" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
         } catch (error) {
             notification(`⚠️ ${error}`)
         }
@@ -242,11 +242,11 @@ document
     .querySelector("#withdraw-transaction")
     .addEventListener("click", async(e) => {
         const withdrawParams = [
-            new BigNumber(parseInt(document.getElementById("withdraw-account").value), 5).toString(),
+            new BigNumber(parseInt(document.getElementById("withdraw-account").value, 10)).toString(),
             new BigNumber(document.getElementById("withdraw-order").value).toString()
         ]
 
-        notification(`⌛ Withdrawing transaction at order number "${withdrawParams[1]}"`)
+        notification(`⌛ Withdrawing transaction from account "${(withdrawParams[0].padStart(5, "0"))}" at order number "${withdrawParams[1]}"`)
 
 
         try{
@@ -254,8 +254,7 @@ document
                 .withdrawal(...withdrawParams)
                 .send({from: kit.defaultAccount })
 
-                console.log(result, "result");
-                notification(`🎉 succesfully withdraw from order number "${withdrawParams[1]}" <a href="https://explorer.celo.org/alfajores/tx/${result.blockHash}">View transaction</a>`)
+                notification(`🎉 succesfully withdraw from account "${(withdrawParams[0].padStart(5, "0"))}" at order number "${withdrawParams[1]}" <a target="_blank" class="underline underline-offset-2" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
         } catch (error) {
             notification(`⚠️ ${error}`)
         }
@@ -273,13 +272,11 @@ document
         document.getElementById("exco-addr").value = ""
 
 
-        console.log(Excoaddress, "see exco addresses")
         let result = [];
 
         for(let i=0; i < Excoaddress.length; i++) {
             result.push(Excoaddress[i].slice(0,6));
         }
-        console.log(result, "result")
         document.getElementById("display-address").innerHTML = `
         <p class="flex-initial bg-slate-400 p-2">${result}</p>
     `
@@ -296,7 +293,6 @@ document
             document.getElementById("create-password").value
         ]
 
-        console.log(createParams, "create parameter");
 
 
         notification(`⌛ Creating association account`)
@@ -306,7 +302,6 @@ document
                 .createAccount(...createParams)
                 .send({from: kit.defaultAccount })
 
-            console.log(result, "result");
             notification(`🎉 succesfully created an association account. <a href="https://explorer.celo.org/alfajores/tx/${result.blockHash}">View transaction</a>`)
         } catch (error) {
             notification(`⚠️ ${error}`)
