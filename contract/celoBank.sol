@@ -21,13 +21,10 @@ contract celoBank is Ownable {
     -----------Events-----------
     ============================
 */
-    event _initTransaction(address, uint256, uint256);
+    event _initTransaction(uint256);
     event _getAccountNumber(uint256, address);
     event _changePassword(string);
     event _approveWithdrawal(uint256);
-    event _amountRequest(uint256);
-    event _associationBalance(uint256);
-    event _approvalStatus(uint256, bool);
 
 /**
     ============================
@@ -189,6 +186,7 @@ contract celoBank is Ownable {
 /// @dev function that initiate transaction
 /// @notice only excos can call on this function
     function initTransaction(uint216 _amountToWithdraw, uint256 _associationAcctNumber) public returns(uint256 getOrder) {
+        require(_associationAcctNumber < accountNumber && _associationAcctNumber != 0, "Invalid Account Number");
         AssociationDetails storage AD = association[_associationAcctNumber];
         require(onlyExco(_associationAcctNumber), "Not an exco");
         require(_amountToWithdraw > 0, "Amount must be greater than zero");
@@ -203,7 +201,7 @@ contract celoBank is Ownable {
             amount: _amountToWithdraw
         });
 
-        emit _initTransaction(msg.sender, _amountToWithdraw, getOrder);
+        emit _initTransaction(getOrder);
 
         orderNumber++;
     }
@@ -211,6 +209,8 @@ contract celoBank is Ownable {
 /// @dev function for approving withdrawal
 
     function approveWithdrawal(uint256 _orderNumber, uint256 _associationAcctNumber) public alreadyExecuted(_associationAcctNumber, _orderNumber) alreadyConfirmed(_associationAcctNumber, _orderNumber){
+        require(_associationAcctNumber < accountNumber && _associationAcctNumber != 0, "Invalid Account Number");
+        require(_orderNumber < orderNumber && _orderNumber !=0, "Invalid Order Number");
         require(onlyExco(_associationAcctNumber), "Not an Exco");
         AssociationDetails storage AD = association[_associationAcctNumber];
         AD.confirmed[_orderNumber][msg.sender] = true;
@@ -223,6 +223,8 @@ contract celoBank is Ownable {
 /// @dev function responsible for withdrawal after approval has been confirmed
 
     function withdrawal(uint256 _associationAcctNumber, uint256 _orderNumber) public alreadyExecuted(_associationAcctNumber, _orderNumber){
+        require(_associationAcctNumber < accountNumber && _associationAcctNumber != 0, "Invalid Account Number");
+        require(_orderNumber < orderNumber && _orderNumber !=0, "Invalid Order Number");
         require(onlyExco(_associationAcctNumber), "Not an Exco");
         AssociationDetails storage AD = association[_associationAcctNumber];
         WithdrawalRequest storage WR = AD.requestOrder[_orderNumber];
@@ -243,6 +245,8 @@ contract celoBank is Ownable {
 */
 
     function revertApproval(uint256 _associationAcctNumber, uint256 _orderNumber) public alreadyExecuted(_associationAcctNumber, _orderNumber){
+        require(_associationAcctNumber < accountNumber && _associationAcctNumber != 0, "Invalid Account Number");
+        require(_orderNumber < orderNumber && _orderNumber !=0, "Invalid Order Number");
         require(onlyExco(_associationAcctNumber), "Not an Exco");
         AssociationDetails storage AD = association[_associationAcctNumber];
         if(AD.confirmed[_orderNumber][msg.sender] == false) revert _notApprovedYet("You have'nt approved yet");
@@ -258,6 +262,8 @@ contract celoBank is Ownable {
     @param _orderNumber: order number of the intiated transaction
 */
     function checkAmountRequest(uint256 _associationAcctNumber,uint256 _orderNumber) public view returns(uint256){
+        require(_associationAcctNumber < accountNumber && _associationAcctNumber != 0, "Invalid Account Number");
+        require(_orderNumber < orderNumber && _orderNumber !=0, "Invalid Order Number");
         AssociationDetails storage AD = association[_associationAcctNumber];
 
 
@@ -270,6 +276,7 @@ contract celoBank is Ownable {
     @param _associationAcctNumber: association account number
 */
     function AmountInAssociationVault(uint256 _associationAcctNumber, string memory password) public view returns(uint256){
+        require(_associationAcctNumber < accountNumber && _associationAcctNumber != 0, "Invalid Account Number");
         AssociationDetails storage AD = association[_associationAcctNumber];
         require(keccak256(abi.encodePacked(AD.associationPassword)) == keccak256(abi.encodePacked(password)), "Incorrect Password");
 
@@ -284,6 +291,8 @@ contract celoBank is Ownable {
 */
 
     function ApprovalStatus(uint256 _associationAcctNumber, uint256 _orderNumber) public view returns (uint256 approvalNo, bool executed) {
+        require(_associationAcctNumber < accountNumber && _associationAcctNumber != 0, "Invalid Account Number");
+        require(_orderNumber < orderNumber && _orderNumber !=0, "Invalid Order Number");
         AssociationDetails storage AD = association[_associationAcctNumber];
         approvalNo = AD.requestOrder[_orderNumber].noOfConfirmation;
         executed = AD.requestOrder[_orderNumber].executed;
@@ -295,6 +304,7 @@ contract celoBank is Ownable {
     @param _addr: member address to check
 */
     function checkUserDeposit(uint256 _associationAcctNumber, address _addr) public view returns(uint256) {
+        require(_associationAcctNumber < accountNumber && _associationAcctNumber != 0, "Invalid Account Number");
         AssociationDetails storage AD = association[_associationAcctNumber];
         return AD.memberBalances[_addr];
     }
