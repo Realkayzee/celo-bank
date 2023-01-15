@@ -39,7 +39,7 @@
         </nav>
         <div class="px-32 md:px-20 container mx-auto mt-16">
             <!-- Warning notification -->
-            <div class="alert p-5 bg-amber-200 mb-5 rounded-lg">
+            <div class="alert p-5 bg-amber-200 mb-5 rounded-lg overflow-x-clip">
                 <span id="notification">⌛ Loading...</span>
             </div>
             <!-- Home -->
@@ -50,9 +50,9 @@
                 <table class="table-fixed w-full mt-8">
                     <thead>
                         <tr>
-                            <th class="text-left py-3 bg-slate-300">Number</th>
+                            <th class="text-left py-3 bg-slate-300 pl-5">Account Number</th>
                             <th class="text-left py-3 bg-slate-300">Name</th>
-                            <th class="text-left py-3 bg-slate-300">Amount ($)</th>
+                            <th class="text-left py-3 bg-slate-300">Creator</th>
                             <th class="text-left py-3 bg-slate-300">Action</th>
                         </tr>
                     </thead>
@@ -64,10 +64,10 @@
             <section class="hidden" id="executive-section">
                 <div class="w-4/5 mx-auto rounded-md flex flex-row gap-5">
                     <div class="base-1/4">
-                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="initiate-transaction">Initiate Transaction</button>
+                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="initiate-transaction">Initiate Withdrawal</button>
                     </div>
                     <div class="base-1/4">
-                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="approve-transaction">Approve Transaction</button>
+                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="approve-transaction">Approve Withdrawal</button>
                     </div>
                     <div class="base-1/4">
                         <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="revert-approval">Revert Approval</button>
@@ -79,7 +79,7 @@
 
                 <!-- Initiate Transaction -->
                 <div class="excos mt-12 w-2/5 mx-auto bg-slate-300 p-4 rounded-md">
-                    <p class="font-bold font-lg mb-4">Initiate Transaction</p>
+                    <p class="font-bold font-lg mb-4">Initiate Withdrawal</p>
                     <form>
                         <label class="block my-1">
                             <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
@@ -101,7 +101,7 @@
 
                 <!-- Approve Transaction -->
                 <div class="excos mt-12 w-2/5 mx-auto bg-slate-300 p-4 rounded-md hidden">
-                    <p class="font-bold font-lg mb-4">Approve Transaction</p>
+                    <p class="font-bold font-lg mb-4">Approve Withdrawal</p>
                     <form>
                         <label class="block my-1">
                             <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
@@ -113,7 +113,7 @@
                             <span class="block text-md font-semibold text-slate-900">
                                 Order Number
                             </span>
-                            <input id="approve-order" type="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="0x6d6812Fb7230218bD0134d6298d1D0Ca97A912d0" />
+                            <input id="approve-order" type="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="Order number" />
                         </label>
                         <button type="button" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4" id="approve-transactions">
                             Approve Transaction
@@ -134,7 +134,7 @@
                             <span class="block text-md font-semibold text-slate-900">
                                 Order Number
                             </span>
-                            <input id="revert-order" type="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="0x6d6812Fb7230218bD0134d6298d1D0Ca97A912d0" />
+                            <input id="revert-order" type="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="Order number" />
                         </label>
                         <button type="button" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4" id="revert-transaction">
                             Revert Approval
@@ -155,7 +155,7 @@
                             <span class="block text-md font-semibold text-slate-900">
                                 Order Number
                             </span>
-                            <input id="withdraw-order" type="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="0x6d6812Fb7230218bD0134d6298d1D0Ca97A912d0" />
+                            <input id="withdraw-order" type="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="Order number" />
                         </label>
                         <button type="button" id="withdraw-transaction" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4">
                             Withdraw
@@ -203,19 +203,19 @@
                             <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
                                 Name
                             </span>
-                            <input id="create-name" type="text" name="name" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="The achievers" />
+                            <input id="create-name" type="text" name="name" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="Association Name" />
                         </label>
                         <label class="block my-1">
                             <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
-                                Number of Executive
+                                Association Password
                             </span>
-                            <input type="number" id="exco-no" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="3" />
+                            <input id="create-password" type="password" name="name" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="Association Password" />
                         </label>
                         <label class="block">
                             <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
                                 Executive Addresses
                             </span>
-                            <input type="text" id="exco-addr" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="The achievers" />
+                            <input type="text" id="exco-addr" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="0x012feadDa84729bcAdec67d928d7a9e6d8e9cadDeaD" />
                         </label>
                         <button type="button" id="add-address" class="p-2 mt-2 bg-slate-500 rounded-2xl text-slate-100">
                             Add Address
