@@ -116,52 +116,7 @@
                 "type": "uint256"
             }
         ],
-        "name": "_amountRequest",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "name": "_approvalStatus",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
         "name": "_approveWithdrawal",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "name": "_associationBalance",
         "type": "event"
     },
     {
@@ -199,18 +154,6 @@
     {
         "anonymous": false,
         "inputs": [
-            {
-                "indexed": false,
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            },
             {
                 "indexed": false,
                 "internalType": "uint256",
