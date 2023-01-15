@@ -111,12 +111,12 @@ document
     .querySelector("#member-deposit")
     .addEventListener("click", async(e) => {
         const depositParams = [
-            new BigNumber(parseInt(document.getElementById("deposit-acctNumber").value), 5).toString(),
+            new BigNumber(parseInt(document.getElementById("deposit-acctNumber").value, 10)).toString(),
             new BigNumber(document.getElementById("deposit-amount").value)
             .shiftedBy(ERC20Decimals)
             .toString()
         ]
-        notification(`⌛ Please approve "$${depositParams[1]/1e18}"...`)
+        notification(`⌛ Please approve "$${depositParams[1]/1e18}" to be deposited into account "${(depositParams[0]).padStart(5, "0")}". waiting...`)
 
         console.log(depositParams, "get deposit parameters")
 
@@ -130,7 +130,7 @@ document
             return;
         }
 
-        notification(`⌛ Depositing "$${depositParams[1]/1e18}"...`)
+        notification(`⌛ Depositing "$${depositParams[1]/1e18}" into account "${(depositParams[0]).padStart(5, "0")}`)
 
         try{
             const result = await contract.methods
@@ -138,7 +138,7 @@ document
                 .send({from: kit.defaultAccount })
 
                 console.log(result, "result")
-        notification(`🎉 You successfully deposited "$${depositParams[1]/1e18}" <a href="https://explorer.celo.org/alfajores/tx/${result.blockHash}">View transaction</a>`)
+        notification(`🎉 You successfully deposited "$${depositParams[1]/1e18}" <a target="_blank" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
 
         } catch (error) {
             notification(`⚠️ ${error}.`)
