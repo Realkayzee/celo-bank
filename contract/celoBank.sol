@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.16;
 
 /**
     @title celo bank contract
@@ -320,5 +320,10 @@ contract celoBank is Ownable {
 
             assInfo[i-1] = AssociationInfo(name, acctNumber, assCreator);
         }
+    }
+
+    function getExcoNumber(uint256 _associationAcctNumber) public view returns(uint256) {
+        AssociationDetails storage AD = association[_associationAcctNumber];
+        return AD.excoNumber;
     }
 }

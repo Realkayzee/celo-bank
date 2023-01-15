@@ -438,6 +438,25 @@
     {
         "inputs": [
             {
+                "internalType": "uint256",
+                "name": "_associationAcctNumber",
+                "type": "uint256"
+            }
+        ],
+        "name": "getExcoNumber",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "uint216",
                 "name": "_amountToWithdraw",
                 "type": "uint216"
