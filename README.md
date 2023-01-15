@@ -1,11 +1,11 @@
 # Celo Bank
 
 Celo bank is an open joint account system for various association, association can come in to register their association account with list of executive.
-* The executives will be responsible for deposit or withdrawal of the association funds.
-* Before withdrawal initiator needs approval of other executive before a withdrawal can be succesful.
-* Executive member can revert his/her approval made
+* The executives will be responsible for withdrawal of the association funds.
+* Before withdrawal, an exco needs to initiate withdrawal first, which must be approved by other excos before a withdrawal can be succesful.
+* Exco can revert his/her approval made
 * Member of the association can deposit into the association account
-* There's a proof that shows member deposited
+* There's a proof that shows member deposited by checking the status page
 
 
 #Demo
