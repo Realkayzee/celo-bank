@@ -30,6 +30,7 @@
                     <div id="home-link" class="py-1 celo-link cursor-pointer">Home</div>
                     <div id="exec-link" class="py-1 celo-link cursor-pointer">Executive</div>
                     <div id="memb-link" class="py-1 celo-link cursor-pointer">Member</div>
+                    <div id="status-link" class="py-1 celo-link cursor-pointer">Status</div>
                     <div class="bg-slate-500 px-4 py-1 rounded-2xl text-slate-50">
                         <span id="balance">0</span>
                         <span>cUSD</span>
@@ -182,6 +183,114 @@
                         </label>
                         <button type="button" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4" id="member-deposit">
                             Deposit
+                        </button>
+                    </form>
+                </div>
+            </section>
+            <!-- Status Page -->
+            <section class="hidden" id="status-section">
+                <div class="bg-slate-300 w-4/5 mx-auto rounded-md p-5 my-8">
+                    <span><b>Result:</b></span><span id="result"></span>
+                </div>
+                <div class="w-4/5 mx-auto rounded-md flex flex-row gap-5">
+                    <div class="base-1/4">
+                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="association-balance">Association Balance</button>
+                    </div>
+                    <div class="base-1/4">
+                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="approval-status">Approval Status</button>
+                    </div>
+                    <div class="base-1/4">
+                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="exco-request">Amount Requested By an Exco</button>
+                    </div>
+                    <div class="base-1/4">
+                        <button class="py-2 px-5 bg-slate-500 rounded-xl text-slate-200" id="user-deposit">Check User Deposit</button>
+                    </div>
+                </div>
+
+                <!-- Association Balance -->
+                <div class="status mt-12 mb-5 w-2/5 mx-auto bg-slate-300 p-4 rounded-md">
+                    <p class="font-bold font-lg mb-4">Association Balance</p>
+                    <form>
+                        <label class="block my-1">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                Account Number
+                            </span>
+                            <input id="association-number" type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="00009" />
+                        </label>
+                        <label class="block my-1">
+                            <span class="block text-md font-semibold text-slate-900">
+                                Password
+                            </span>
+                            <input id="association-password" type="password" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="Password" />
+                        </label>
+                        <button type="button" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4" id="check-balance">
+                            Check Balance
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Approval Status -->
+                <div class="status mt-12 mb-5 w-2/5 mx-auto bg-slate-300 p-4 rounded-md hidden">
+                    <p class="font-bold font-lg mb-4">Approval Status</p>
+                    <form>
+                        <label class="block my-1">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                Account Number
+                            </span>
+                            <input id="ass-approval-number" type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="00009" />
+                        </label>
+                        <label class="block my-1">
+                            <span class="block text-md font-semibold text-slate-900">
+                                Order Number
+                            </span>
+                            <input id="ass-order-number" type="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="Order Number" />
+                        </label>
+                        <button type="button" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4" id="check-approval">
+                            Check Approval status
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Amount Requested -->
+                <div class="status mt-12 mb-5 w-2/5 mx-auto bg-slate-300 p-4 rounded-md hidden">
+                    <p class="font-bold font-lg mb-4">Amount Requested</p>
+                    <form>
+                        <label class="block my-1">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                Account Number
+                            </span>
+                            <input id="requested-account-number" type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="00009" />
+                        </label>
+                        <label class="block my-1">
+                            <span class="block text-md font-semibold text-slate-900">
+                                Order Number
+                            </span>
+                            <input id="requested-order-number" type="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="Order Number" />
+                        </label>
+                        <button type="button" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4" id="check-requested">
+                            Check Amount Requested
+                        </button>
+                    </form>
+                </div>
+
+                <!-- User Deposit -->
+                <div class="status mt-12 mb-5 w-2/5 mx-auto bg-slate-300 p-4 rounded-md hidden">
+                    <p class="font-bold font-lg mb-4">User Deposit</p>
+                    <form>
+                        <label class="block my-1">
+                            <span class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-md font-semibold text-slate-900">
+                                Account Number
+                            </span>
+                            <input id="ass-user-number" type="number" name="number" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="00009" />
+                        </label>
+                        <label class="block my-1">
+                            <span class="block text-md font-semibold text-slate-900">
+                                User Address
+                            </span>
+                            <input id="user-addr" type="text" class="mt-1 px-3 py-2 bg-slate-200 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-slate-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="User Address" />
+                        </label>
+                        <button type="button" class="w-full rounded-2xl bg-slate-500 text-slate-100 py-2 mt-4" id="check-deposit">
+                            Check User Deposit
                         </button>
                     </form>
                 </div>

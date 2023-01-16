@@ -19,6 +19,7 @@ let allAssociation;
 // get DOM elements
 const sections = document.querySelectorAll("section");
 const excoPage = document.querySelectorAll(".excos");
+const statusPage = document.querySelectorAll(".status");
 
 
 
@@ -231,7 +232,7 @@ document
 
                 const {events: getEvents} = result;
                 const event = getEvents._approveWithdrawal.raw.data
-                notification(`🎉 succesfully revert approval. Total number of confirmation from excos: <b>${hexToDecimal(event)} of ${excoNumber}</b> <br/> <a target="_blank" class="underline underline-offset-2" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
+                notification(`🎉 succesfully revert approval. Total number of approval from excos: <b>${hexToDecimal(event)} of ${excoNumber}</b> <br/> <a target="_blank" class="underline underline-offset-2" href="https://alfajores.celoscan.io/tx/${result.transactionHash}">View transaction</a>`)
         } catch (error) {
             notification(`⚠️ ${error}`)
         }
@@ -264,6 +265,91 @@ document
 
         await getAllAssociation()
     })
+
+function statusResult(_text) {
+    document.getElementById("result").innerHTML = _text;
+}
+
+// association balance function
+document
+    .querySelector("#check-balance")
+    .addEventListener("click", async(e) => {
+        const balanceParams = [
+            new BigNumber(parseInt(document.getElementById("association-number").value, 10)).toString(),
+            document.getElementById("association-password").value
+        ]
+
+        try{
+            const balance = await contract.methods
+                .AmountInAssociationVault(...balanceParams)
+                .call();
+
+                statusResult(`<br/><b>Association Balance is ${balance/1e18} cUSD<b/>`)
+        } catch (error) {
+            notification(`⚠️ ${error}: Incorrect Password`)
+        }
+    })
+
+// approval status function
+document
+    .querySelector("#check-approval")
+    .addEventListener("click", async(e) => {
+        const approvalParams = [
+            new BigNumber(parseInt(document.getElementById("ass-approval-number").value, 10)).toString(),
+            new BigNumber(document.getElementById("ass-order-number").value).toString()
+        ]
+
+        try{
+            const approvalStatus = await contract.methods
+                .ApprovalStatus(...approvalParams)
+                .call();
+
+                statusResult(`<br/>Total number of approval <b>-</b> ${approvalStatus.approvalNo} <br/> Withdrawal executed? <b>-<b/> ${approvalStatus.executed}`)
+        } catch (error) {
+            notification(`⚠️ ${error}: No available approval`)
+        }
+    })
+
+// Amount Requested by an exco function
+document
+    .querySelector("#check-requested")
+    .addEventListener("click", async(e) => {
+        const requestParams = [
+            new BigNumber(parseInt(document.getElementById("requested-account-number").value, 10)).toString(),
+            new BigNumber(document.getElementById("requested-order-number").value).toString()
+        ]
+
+        try{
+            const amountRequested = await contract.methods
+                .checkAmountRequest(...requestParams)
+                .call();
+
+                statusResult(`<br/>Amount requested for <b>order number: ${requestParams[1]} is ${amountRequested/1e18} cUSD</b>`)
+        } catch (error) {
+            notification(`⚠️ ${error}: No available approval`)
+        }
+    })
+
+// User deposit function
+document
+    .querySelector("#check-deposit")
+    .addEventListener("click", async(e) => {
+        const depositParams = [
+            new BigNumber(parseInt(document.getElementById("ass-user-number").value, 10)).toString(),
+            document.getElementById("user-addr").value
+        ]
+        try{
+            const depositedAmount = await contract.methods
+                .checkUserDeposit(...depositParams)
+                .call();
+
+                statusResult(`<br/>Amount deposited by <b>user: ${depositParams[1]} is ${depositedAmount/1e18} cUSD</b>`)
+        } catch (error) {
+            notification(`⚠️ ${error}: Invalid input`)
+        }
+    })
+
+
 
     let Excoaddress = [];
 
@@ -347,6 +433,10 @@ document.getElementById("exec-link").addEventListener("click", () => {
 document.getElementById("memb-link").addEventListener("click", () => {
     openTab(2);
 })
+// Status Page
+document.getElementById("status-link").addEventListener("click", () => {
+    openTab(3)
+})
 
 document.getElementById("tbody").addEventListener("click", () => {
     openTab(2);
@@ -378,6 +468,25 @@ document.getElementById("close-modal").addEventListener("click", () => {
     document.getElementById("celo-body").style.backgroundColor = ""
 })
 
+// Status Page
+
+// Check association balance
+document.getElementById("association-balance").addEventListener("click", () => {
+    statusTab(0);
+})
+// Check Approval status
+document.getElementById("approval-status").addEventListener("click", () => {
+    statusTab(1);
+})
+// Check Amount requested
+document.getElementById("exco-request").addEventListener("click", () => {
+    statusTab(2);
+})
+// Check user deposit 
+document.getElementById("user-deposit").addEventListener("click", () => {
+    statusTab(3);
+})
+
 
 function openTab(pageId) {
     sections.forEach((page) => {
@@ -392,4 +501,11 @@ function excoTab(pageId) {
         page.style.display = "none";
     });
     excoPage[pageId].style.display = "block";
+}
+
+function statusTab(pageId) {
+    statusPage.forEach((page) => {
+        page.style.display = "none";
+    });
+    statusPage[pageId].style.display = "block";
 }
