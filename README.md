@@ -38,8 +38,29 @@ The list contains:
 
 The deposit form takes in the account number and amount user wants to deposit.
 * Anybody can deposit cUSD into the association account
-* Depositing into an invalid account number won't go through
-* The amount will be deposited into user specified account number, so ensure the deposit account number is correct.
+* Inputting an invalid account number won't go through
+* The amount will be deposited into the account number user specified, so ensure the deposit account number is correct.
+
+## Executive Page
+
+This page is solely for excos, remeber excos handle withdrawal initiation, approval/revert and withdrawal
+* Excos willing to withdraw from the association account will first initiate withdrawal,
+* On initiating, an order number will be given to the exco, which other exco members will approval before final withdrawal from the association
+* It means no exco can withdraw without the approval of other excos
+* On initialising withdrawal, the exco that initialised the withdrawal automatically approve his/her withdrawal
+* Other exco can approve a withdrawal by specifying the association account number and the withdrawal order number
+* Any exco can revert his/her approved withdrawal in case of change of mind
+
+## Status Page
+
+This page is responsible for tracking association activities, such as:
+* Checking association balance with associaiton password for members of the association
+* Checking approval status
+* Checking Amount Requested by an exco
+* Checking amount a user deposited for accountability
+
+All of these are put in place for transparency and accountability within association
+
 
 
 
